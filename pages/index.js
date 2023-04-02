@@ -13,6 +13,9 @@ export default function Home() {
   const createEditsHandler = () => {
     router.push("/chatgpt/chatgpt-createedits");
   };
+  const createImageHandler = () => {
+    router.push("/chatgpt/chatgpt-createimage");
+  };
   return (
     <>
       <Head>
@@ -74,6 +77,34 @@ export default function Home() {
                 >
                   Try Edits
                 </button>
+              </div>
+            </li>
+            <br></br>
+            <li>
+              <div>
+                <h3>Images</h3>
+                <p>
+                  Given a prompt and/or an input image, the model will generate
+                  a new image.
+                </p>
+                <ol style={{ marginLeft: "1rem" }}>
+                  <li>
+                    <div>
+                      <h4>Create Image</h4>
+                      <p>
+                        Given a prompt and/or an input image, the model will
+                        generate a new image.
+                      </p>
+                      <button
+                        style={{ padding: "0.5rem" }}
+                        className={styles.btn0}
+                        onClick={createImageHandler}
+                      >
+                        Try Create Image
+                      </button>
+                    </div>
+                  </li>
+                </ol>
               </div>
             </li>
           </ul>
