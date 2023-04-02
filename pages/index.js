@@ -47,7 +47,7 @@ export default function Home() {
                     alternative tokens at each position.
                   </p>
                   <button
-                    className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800"
+                    className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800 focus:outline-none"
                     onClick={textGenerationHandler}
                   >
                     Try Completion
@@ -63,7 +63,7 @@ export default function Home() {
                     completion response.
                   </p>
                   <button
-                    className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800"
+                    className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800 focus:outline-none"
                     onClick={chatCompletionHandler}
                   >
                     Try Chat Completion
@@ -79,7 +79,7 @@ export default function Home() {
                     edited version of the prompt.
                   </p>
                   <button
-                    className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800"
+                    className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800 focus:outline-none"
                     onClick={createEditsHandler}
                   >
                     Try Edits
@@ -103,7 +103,7 @@ export default function Home() {
                           generate a new image.
                         </p>
                         <button
-                          className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800"
+                          className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800 focus:outline-none"
                           onClick={createImageHandler}
                         >
                           Try Create Image

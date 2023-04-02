@@ -45,49 +45,53 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div>
-          <h1>OpenAI GPT Demo - Chat Completion</h1>
-          <form onSubmit={handleSubmit}>
-            <label htmlFor="prompt">Enter a prompt:</label>
+        <>
+          <h1 className="text-xl md:text-5xl text-center font-bold py-10 border-b">
+            OpenAI GPT Demo - Chat Completion
+          </h1>
+          <div className="container mx-auto py-3">
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="prompt" className="text-xl font-bold">
+                Enter a prompt:
+              </label>
+              <br></br>
+              <textarea
+                className="border px-2 py-2 focus:outline-none rounded-md"
+                id="prompt"
+                row={10}
+                cols={50}
+                value={prompt}
+                onChange={(event) => setPrompt(event.target.value)}
+                required
+              />
+              <br></br>
+              <br></br>
+              <button
+                type="submit"
+                className="bg-green-500 border-green-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-green-200 hover:text-green-900 focus:outline-none"
+              >
+                Generate Chat
+              </button>
+              <button
+                onClick={clearTextHandler}
+                className="mx-2 bg-red-500 border-red-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-red-200 hover:text-red-900 focus:outline-none"
+              >
+                Clear Chat
+              </button>
+            </form>
             <br></br>
-            <textarea
-              style={{ padding: "0.5rem" }}
-              id="prompt"
-              row={10}
-              cols={50}
-              value={prompt}
-              onChange={(event) => setPrompt(event.target.value)}
-              required
-            />
             <br></br>
-            <br></br>
-            <button
-              type="submit"
-              style={{ padding: "0.5rem" }}
-              className={styles.btn1}
-            >
-              Generate Chat
-            </button>
-            <button
-              onClick={clearTextHandler}
-              style={{ padding: "0.5rem", marginLeft: "0.5rem" }}
-              className={styles.btn2}
-            >
-              Clear Chat
-            </button>
-          </form>
-          <br></br>
-          <br></br>
-          {loader ? <Loader /> : <></>}
-          {generatedText && (
-            <div>
-              <h2>Generated Chat:</h2>
-              <p style={{ textAlign: "justify" }}>
-                {generatedText.generatedChatResponse}
-              </p>
-            </div>
-          )}
-        </div>
+            {loader ? <Loader /> : <></>}
+            {generatedText && (
+              <div>
+                <h2 className="text-xl font-bold">Generated Chat:</h2>
+                <p style={{ textAlign: "justify" }}>
+                  {generatedText.generatedChatResponse}
+                </p>
+              </div>
+            )}
+          </div>
+        </>
       </main>
     </>
   );
