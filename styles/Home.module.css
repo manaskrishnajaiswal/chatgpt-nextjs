@@ -277,6 +277,14 @@
   }
 }
 
-.prompt:hover {
+.btn0:hover {
   background-color: mediumspringgreen;
+}
+
+.btn1:hover {
+  background-color: mediumspringgreen;
+}
+
+.btn2:hover {
+  background-color: red;
 }
