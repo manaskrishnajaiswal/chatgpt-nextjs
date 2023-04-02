@@ -7,6 +7,9 @@ export default function Home() {
   const textGenerationHandler = () => {
     router.push("/chatgpt/chatgpt-createcompletion");
   };
+  const chatCompletionHandler = () => {
+    router.push("/chatgpt/chatgpt-chatcompletion");
+  };
   return (
     <>
       <Head>
@@ -33,6 +36,23 @@ export default function Home() {
                   onClick={textGenerationHandler}
                 >
                   Text Generation
+                </button>
+              </div>
+            </li>
+            <br></br>
+            <li>
+              <div>
+                <h3>Chat</h3>
+                <p>
+                  Given a chat conversation, the model will return a chat
+                  completion response.
+                </p>
+                <button
+                  style={{ padding: "0.5rem" }}
+                  className={styles.btn0}
+                  onClick={chatCompletionHandler}
+                >
+                  Chat Completion
                 </button>
               </div>
             </li>
