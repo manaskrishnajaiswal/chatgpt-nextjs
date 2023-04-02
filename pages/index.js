@@ -10,6 +10,9 @@ export default function Home() {
   const chatCompletionHandler = () => {
     router.push("/chatgpt/chatgpt-chatcompletion");
   };
+  const createEditsHandler = () => {
+    router.push("/chatgpt/chatgpt-createedits");
+  };
   return (
     <>
       <Head>
@@ -53,6 +56,23 @@ export default function Home() {
                   onClick={chatCompletionHandler}
                 >
                   Try Chat Completion
+                </button>
+              </div>
+            </li>
+            <br></br>
+            <li>
+              <div>
+                <h3>Edits</h3>
+                <p>
+                  Given a prompt and an instruction, the model will return an
+                  edited version of the prompt.
+                </p>
+                <button
+                  style={{ padding: "0.5rem" }}
+                  className={styles.btn0}
+                  onClick={createEditsHandler}
+                >
+                  Try Edits
                 </button>
               </div>
             </li>
