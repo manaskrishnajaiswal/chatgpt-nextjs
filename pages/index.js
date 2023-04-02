@@ -24,7 +24,7 @@ export default function Home() {
           <ul>
             <li>
               <div>
-                <h3>Text Generation</h3>
+                <h3>Completions</h3>
                 <p>
                   Given a prompt, the model will return one or more predicted
                   completions, and can also return the probabilities of
@@ -35,7 +35,7 @@ export default function Home() {
                   className={styles.btn0}
                   onClick={textGenerationHandler}
                 >
-                  Text Generation
+                  Try Completion
                 </button>
               </div>
             </li>
@@ -52,7 +52,7 @@ export default function Home() {
                   className={styles.btn0}
                   onClick={chatCompletionHandler}
                 >
-                  Chat Completion
+                  Try Chat Completion
                 </button>
               </div>
             </li>
