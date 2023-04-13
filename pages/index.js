@@ -16,6 +16,9 @@ export default function Home() {
   const createImageHandler = () => {
     router.push("/chatgpt/chatgpt-createimage");
   };
+  const createImageEditHandler = () => {
+    router.push("/chatgpt/chatgpt-createimageedit");
+  };
   return (
     <>
       <Head>
@@ -107,6 +110,22 @@ export default function Home() {
                           onClick={createImageHandler}
                         >
                           Try Create Image
+                        </button>
+                      </div>
+                    </li>
+                    <br></br>
+                    <li>
+                      <div>
+                        <h4>Create Image Edit</h4>
+                        <p>
+                          Creates an edited or extended image given an original
+                          image and a prompt.
+                        </p>
+                        <button
+                          className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800 focus:outline-none"
+                          onClick={createImageEditHandler}
+                        >
+                          Try Create Image Edit
                         </button>
                       </div>
                     </li>
