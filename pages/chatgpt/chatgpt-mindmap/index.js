@@ -2,10 +2,28 @@ import React, { useEffect, useRef, useState } from "react";
 import * as go from "gojs";
 import Loader from "@/frontend/components/Loader";
 import Head from "next/head";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ChatgptMindmap = () => {
   const diagramRef = useRef(null);
   const diagramInstanceRef = useRef(null);
+
+  const [rootData, setRootData] = useState("");
+  console.log(rootData);
+  const [nodeData, setNodeData] = useState([]);
+  console.log(nodeData);
+  const [nodeDataArray, setNodeDataArray] = useState([]);
+  console.log(nodeDataArray);
+  const [nodeSelected, setNodeSelected] = useState(false);
+  console.log(nodeSelected);
+  const [parentKey, setParentKey] = useState("R1");
+  console.log(parentKey);
+  const [prompt, setPrompt] = useState("");
+  console.log(prompt);
+  const [generatedText, setGeneratedText] = useState("");
+  const [loader, setLoader] = useState(false);
 
   useEffect(() => {
     if (!diagramRef.current) return;
@@ -26,83 +44,106 @@ const ChatgptMindmap = () => {
     diagram.nodeTemplate = $(
       go.Node,
       "Auto",
+      { background: "yellow", resizable: true },
+      $(go.Shape, { fill: "yellow" }, new go.Binding("fill", "color")),
+      $(
+        go.TextBlock,
+        {
+          margin: 10,
+          textAlign: "center",
+          stretch: go.GraphObject.Fill,
+          width: 800,
+          height: 500,
+          overflow: go.TextBlock.OverflowEllipsis,
+          font: "bold 50px sans-serif",
+          editable: false,
+          isMultiline: true,
+          wrap: go.TextBlock.WrapFit,
+        },
+        new go.Binding("text", "text"),
+        new go.Binding("stroke", "stroke")
+      ),
       {
         click: (e, node) => {
           const buttonClicked = node;
           console.log(`Button clicked on node: ${buttonClicked}`);
-          console.log(node.data.key);
-          diagram.commandHandler.expandTree(node);
+          setPrompt(node.data?.text);
+          if (node.isTreeExpanded) {
+            diagram.commandHandler.collapseTree(node);
+          } else {
+            diagram.commandHandler.expandTree(node);
+          }
           var children = node.findTreeChildrenNodes(); // find all child nodes of the clicked node
           const nodeChildArr = [];
           children.each(function (child) {
             nodeChildArr.push(child.data.key);
             console.log(child.data.key); // log the key property of each child node to the console
           });
-          console.log(nodeChildArr.length, nodeChildArr);
-          if (nodeChildArr.length >= 3) {
-            console.log("Only 3 child nodes can be added!!");
-          } else {
-            const parentKey = node.data.key;
-            const model = diagram.model;
-            // const parentNode = model.findNodeDataForKey(parentKey);
-            model.startTransaction("add nodes");
-            for (let i = 1; i <= 3; i++) {
-              const childKey = parentKey + "N" + i;
-              const childData = {
-                key: childKey,
-                text: "Child " + childKey,
-                color: "#1ABC9C",
-                figure: "Diamond",
-                parent: parentKey,
-              };
-              model.addNodeData(childData);
+
+          if (nodeChildArr.length >= 3 || nodeData.length === 0) {
+            if (nodeChildArr.length >= 3) {
+              console.log("Only 3 child nodes can be added!!");
+              toast.error("Only 3 child nodes can be added!!");
+            } else if (nodeData.length === 0) {
+              console.log("Please generate data for node!!");
+              toast.error("Please generate data for node!!");
             }
-            model.commitTransaction("add nodes");
+          } else {
+            setParentKey(node.data?.key);
           }
+          if (nodeChildArr.length === 0) {
+            setNodeSelected(true);
+            setParentKey(node.data?.key);
+          }
+          // else {
+          //   const parentKey = node.data?.key;
+          //   const tempChildList = [];
+          //   for (let i = 1; i <= 3; i++) {
+          //     const childKey = parentKey + "N" + i;
+          //     const childData = {
+          //       key: childKey,
+          //       text: nodeData[i - 1]?.message.content,
+          //       color: "#1ABC9C",
+          //       figure: "Diamond",
+          //       parent: parentKey,
+          //     };
+
+          //     tempChildList.push(childData);
+          //   }
+          //   setNodeDataArray([...nodeDataArray, ...tempChildList]);
+          //   setNodeData([]);
+          // }
         },
-      },
-      $(
-        go.Panel,
-        "Vertical",
-        $(
-          go.Panel,
-          "Auto",
-          { margin: 6, alignment: go.Spot.Bottom },
-          $(
-            go.Shape,
-            "RoundedRectangle",
-            { fill: "#F1C40F", width: 100, height: 100 },
-            new go.Binding("fill", "color")
-          ),
-          $(
-            go.TextBlock,
-            {
-              font: "bold 10pt sans-serif",
-              stroke: "#ECF0F1",
-              textAlign: "center",
-              margin: 2,
-              width: 50,
-              height: 50,
-              editable: true,
-              isMultiline: true,
-            },
-            new go.Binding("text", "text"),
-            new go.Binding("stroke", "stroke")
-          )
-        )
-      )
+      }
     );
+
+    // Add nodes
+    console.log(parentKey.length > 0 && nodeData.length === 3);
+    if (
+      parentKey.length > 0 &&
+      nodeData.length === 3 &&
+      nodeDataArray.length > 0
+    ) {
+      // const parentKey = node.data?.key;
+      const tempChildList = [];
+      for (let i = 1; i <= 3; i++) {
+        const childKey = parentKey + "N" + i;
+        const childData = {
+          key: childKey,
+          text: nodeData[i - 1]?.message.content,
+          color: "#1ABC9C",
+          figure: "Diamond",
+          parent: parentKey,
+        };
+        tempChildList.push(childData);
+      }
+      setNodeDataArray([...nodeDataArray, ...tempChildList]);
+      setNodeData([]);
+    }
 
     // Add nodes to the diagram
     diagram.model = $(go.TreeModel, {
-      nodeDataArray: [
-        {
-          key: "R1",
-          text: "Root",
-          color: "#8E44AD",
-          figure: "Rectangle",
-        },
-      ],
+      nodeDataArray: nodeDataArray,
     });
 
     // customize the layout of the tree
@@ -112,9 +153,33 @@ const ChatgptMindmap = () => {
       layerSpacing: 80,
     });
 
+    // Set the zoom level to 25%
+    diagram.scale = 0.125;
+    // Set minimum and maximum sizes for the nodes
+    diagram.nodeTemplate.minSize = new go.Size(NaN, 50);
+    diagram.nodeTemplate.maxSize = new go.Size(NaN, NaN);
+
+    if (nodeDataArray.length === 0 && rootData) {
+      setNodeDataArray([
+        {
+          key: "R1",
+          text: rootData,
+          color: "brown",
+          figure: "Rectangle",
+        },
+      ]);
+      // setParentKey("R1");
+    }
+
     // store Diagram instance
     diagramInstanceRef.current = diagram;
-  }, [diagramRef.current]);
+  }, [diagramRef.current, rootData, nodeData, nodeDataArray, parentKey]);
+
+  useEffect(() => {
+    if (nodeSelected && prompt.length > 0 && nodeData.length === 0) {
+      nodefetchData();
+    }
+  }, [prompt, nodeSelected, nodeData]);
 
   // cleanup function
   useEffect(() => {
@@ -126,11 +191,75 @@ const ChatgptMindmap = () => {
     };
   }, []);
 
+  const nodefetchData = async () => {
+    // your async code here
+    const model = {
+      inputText: prompt,
+    };
+    try {
+      setGeneratedText("");
+      setLoader(true);
+      toast.success("Text Generation started!!");
+      const { data } = await axios.post(
+        "/api/chatgpt/chatgpt-chatcompletion-mindmap",
+        model
+      );
+      setLoader(false);
+      toast.success("Text Generation ended!!");
+      setNodeSelected(false);
+      setGeneratedText(data);
+      setRootData(prompt);
+      setNodeData([...data.generatedChatResponse]);
+      setPrompt("");
+    } catch (error) {
+      setLoader(false);
+      setNodeSelected(false);
+      console.log(error);
+    }
+  };
+
+  const promptHandleSubmit = async (event) => {
+    event.preventDefault();
+    const model = {
+      inputText: prompt,
+    };
+    try {
+      setGeneratedText("");
+      setLoader(true);
+      toast.success("Text Generation started!!");
+      const { data } = await axios.post(
+        "/api/chatgpt/chatgpt-chatcompletion-mindmap",
+        model
+      );
+      setLoader(false);
+      toast.success("Text Generation ended!!");
+      setNodeSelected(false);
+      setGeneratedText(data);
+      setRootData(prompt);
+      setNodeData([...data.generatedChatResponse]);
+      setPrompt("");
+    } catch (error) {
+      setLoader(false);
+      setNodeSelected(false);
+      console.log(error);
+    }
+  };
+
+  const clearTextHandler = (event) => {
+    event.preventDefault();
+    setGeneratedText("");
+    setPrompt("");
+    setRootData("");
+    setNodeData([]);
+    setNodeDataArray([]);
+    setParentKey("R1");
+  };
+
   return (
     <>
       <section>
         <Head>
-          <title>Database Mgmt App</title>
+          <title>ChatGpt MindMap</title>
           <meta name="description" content="Generated by create next app" />
           <link rel="icon" href="/favicon.ico" />
           <link
@@ -141,23 +270,95 @@ const ChatgptMindmap = () => {
             referrerPolicy="no-referrer"
           />
         </Head>
+        <ToastContainer position="bottom-right" />
         <main className="py-5">
-          <h1 className="text-xl md:text-5xl text-center font-bold py-10 border-b">
-            Database Schema and Data
-          </h1>
-          <br />
+          <>
+            <h1 className="text-xl md:text-5xl text-center font-bold py-10 border-b">
+              OpenAI GPT Demo - Chat Completion
+            </h1>
+            <div className="container flex mx-auto py-3">
+              <div>
+                <div className="flex">
+                  <div className="mx-2">
+                    <form onSubmit={promptHandleSubmit}>
+                      <label htmlFor="prompt" className="text-xl font-bold">
+                        Enter a prompt:
+                      </label>
+                      <br></br>
+                      <textarea
+                        className="border px-2 py-2 focus:outline-none rounded-md text-justify"
+                        id="prompt"
+                        rows={8}
+                        cols={60}
+                        value={prompt}
+                        onChange={(event) => setPrompt(event.target.value)}
+                        required
+                      />
+                      <br></br>
+                      <br></br>
+                      <button
+                        type="submit"
+                        className="bg-green-500 border-green-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-green-200 hover:text-green-900 focus:outline-none"
+                      >
+                        Generate Chat
+                      </button>
+                      <button
+                        onClick={clearTextHandler}
+                        className="mx-2 bg-red-500 border-red-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-red-200 hover:text-red-900 focus:outline-none"
+                      >
+                        Clear Chat
+                      </button>
+                    </form>
+                  </div>
+                  <div>
+                    {nodeDataArray.length !== 0 && (
+                      <>
+                        <h2>Selected Node Data:</h2>
+                        <p className="text-justify">{prompt}</p>
+                      </>
+                    )}
+                  </div>
+                </div>
 
-          <div className="container mx-auto border-t">
-            <div
-              className="border rounded-md"
-              ref={diagramRef}
-              style={{
-                width: "100%",
-                height: "800px",
-                backgroundColor: "#f0f0f0",
-              }}
-            />
-          </div>
+                <br></br>
+                <br></br>
+                {loader ? <Loader /> : <></>}
+                {(generatedText || nodeDataArray.length !== 0) && (
+                  <div className="mx-auto">
+                    {/* <div
+                      className="mx-3"
+                      style={{
+                        width: "50%",
+                        backgroundColor: "#f0f0f0",
+                      }}
+                    >
+                      <h2 className="text-xl font-bold">Generated Chat:</h2>
+                      <p style={{ textAlign: "justify" }} className="px-2">
+                        {generatedText.generatedChatResponse.map((item) => (
+                          <span key={item.index}>
+                            {item.message.content}
+                            <br></br>
+                            <br></br>
+                          </span>
+                        ))}
+                      </p>
+                    </div> */}
+                    <div
+                      className="border rounded-md"
+                      ref={diagramRef}
+                      style={{
+                        height: "600px",
+                        backgroundColor: "#f0f0f0",
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              <div></div>
+            </div>
+          </>
+
+          <br />
         </main>
       </section>
     </>

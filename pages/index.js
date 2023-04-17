@@ -4,6 +4,9 @@ import { useRouter } from "next/router";
 
 export default function Home() {
   const router = useRouter();
+  const chatMindMapHandler = () => {
+    router.push("/chatgpt/chatgpt-mindmap");
+  };
   const textGenerationHandler = () => {
     router.push("/chatgpt/chatgpt-createcompletion");
   };
@@ -19,6 +22,7 @@ export default function Home() {
   const createImageEditHandler = () => {
     router.push("/chatgpt/chatgpt-createimageedit");
   };
+
   return (
     <>
       <Head>
@@ -43,7 +47,7 @@ export default function Home() {
             <ul className="list-disc">
               <li>
                 <div>
-                  <h3>Completions</h3>
+                  <h3>Chat Completions - Integrated MindMap</h3>
                   <p>
                     Given a prompt, the model will return one or more predicted
                     completions, and can also return the probabilities of
@@ -51,9 +55,27 @@ export default function Home() {
                   </p>
                   <button
                     className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800 focus:outline-none"
+                    onClick={chatMindMapHandler}
+                  >
+                    Try Chat MindMap
+                  </button>
+                </div>
+              </li>
+              <br></br>
+              <li>
+                <div>
+                  <h3>Completions</h3>
+                  <p>
+                    Given a prompt, the model will return one or more predicted
+                    completions, and can also return the probabilities of
+                    alternative tokens at each position.
+                  </p>
+                  <button
+                    disabled
+                    className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800 focus:outline-none"
                     onClick={textGenerationHandler}
                   >
-                    Try Completion
+                    Try Completion - Comming Soon
                   </button>
                 </div>
               </li>
@@ -66,10 +88,11 @@ export default function Home() {
                     completion response.
                   </p>
                   <button
+                    disabled
                     className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800 focus:outline-none"
                     onClick={chatCompletionHandler}
                   >
-                    Try Chat Completion
+                    Try Chat Completion - Comming Soon
                   </button>
                 </div>
               </li>
@@ -82,10 +105,11 @@ export default function Home() {
                     edited version of the prompt.
                   </p>
                   <button
+                    disabled
                     className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800 focus:outline-none"
                     onClick={createEditsHandler}
                   >
-                    Try Edits
+                    Try Edits - Comming Soon
                   </button>
                 </div>
               </li>
@@ -106,10 +130,11 @@ export default function Home() {
                           generate a new image.
                         </p>
                         <button
+                          disabled
                           className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800 focus:outline-none"
                           onClick={createImageHandler}
                         >
-                          Try Create Image
+                          Try Create Image - Comming Soon
                         </button>
                       </div>
                     </li>
@@ -122,10 +147,11 @@ export default function Home() {
                           image and a prompt.
                         </p>
                         <button
+                          disabled
                           className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800 focus:outline-none"
                           onClick={createImageEditHandler}
                         >
-                          Try Create Image Edit
+                          Try Create Image Edit - Comming Soon
                         </button>
                       </div>
                     </li>

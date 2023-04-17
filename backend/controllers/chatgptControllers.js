@@ -1,5 +1,6 @@
 import {
   chatCompletion,
+  chatCompletionMindmap,
   createEdits,
   createImages,
   createImagesEdit,
@@ -26,6 +27,22 @@ export async function createChatCompletionPost(req, res) {
   const { inputText } = req.body;
   try {
     const generatedChatResponse = await chatCompletion(inputText);
+    res.status(200).send({
+      message: "Chat generated successfully!!",
+      generatedChatResponse: generatedChatResponse,
+    });
+  } catch (error) {
+    console.log(error.message);
+    res
+      .status(500)
+      .send({ message: "Internal Server error", error: error.message });
+  }
+}
+
+export async function createChatCompletionMindmapPost(req, res) {
+  const { inputText } = req.body;
+  try {
+    const generatedChatResponse = await chatCompletionMindmap(inputText);
     res.status(200).send({
       message: "Chat generated successfully!!",
       generatedChatResponse: generatedChatResponse,
