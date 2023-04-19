@@ -71,6 +71,7 @@ export default function Home() {
                     alternative tokens at each position.
                   </p>
                   <button
+                    disabled
                     className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800 focus:outline-none"
                     onClick={textGenerationHandler}
                   >
@@ -87,6 +88,7 @@ export default function Home() {
                     completion response.
                   </p>
                   <button
+                    disabled
                     className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800 focus:outline-none"
                     onClick={chatCompletionHandler}
                   >

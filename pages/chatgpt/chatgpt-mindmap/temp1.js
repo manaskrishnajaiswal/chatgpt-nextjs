@@ -10,11 +10,16 @@ const ChatgptMindmap = () => {
   const diagramRef = useRef(null);
   const diagramInstanceRef = useRef(null);
 
-  const [nodeData, setNodeData] = useState({});
+  const [rootData, setRootData] = useState("");
+  console.log(rootData);
+  const [nodeData, setNodeData] = useState([]);
   console.log(nodeData);
   const [nodeDataArray, setNodeDataArray] = useState([]);
   console.log(nodeDataArray);
-
+  const [nodeSelected, setNodeSelected] = useState(false);
+  console.log(nodeSelected);
+  const [parentKey, setParentKey] = useState("R1");
+  console.log(parentKey);
   const [prompt, setPrompt] = useState("");
   console.log(prompt);
   const [generatedText, setGeneratedText] = useState("");
@@ -62,14 +67,79 @@ const ChatgptMindmap = () => {
         click: (e, node) => {
           const buttonClicked = node;
           console.log(`Button clicked on node: ${buttonClicked}`);
+          setPrompt(node.data?.text);
           if (node.isTreeExpanded) {
             diagram.commandHandler.collapseTree(node);
           } else {
             diagram.commandHandler.expandTree(node);
           }
+          var children = node.findTreeChildrenNodes(); // find all child nodes of the clicked node
+          const nodeChildArr = [];
+          children.each(function (child) {
+            nodeChildArr.push(child.data.key);
+            console.log(child.data.key); // log the key property of each child node to the console
+          });
+
+          if (nodeChildArr.length >= 3 || nodeData.length === 0) {
+            if (nodeChildArr.length >= 3) {
+              console.log("Only 3 child nodes can be added!!");
+              toast.error("Only 3 child nodes can be added!!");
+            } else if (nodeData.length === 0) {
+              console.log("Please generate data for node!!");
+              toast.error("Please generate data for node!!");
+            }
+          } else {
+            setParentKey(node.data?.key);
+          }
+          if (nodeChildArr.length === 0) {
+            setNodeSelected(true);
+            setParentKey(node.data?.key);
+          }
+          // else {
+          //   const parentKey = node.data?.key;
+          //   const tempChildList = [];
+          //   for (let i = 1; i <= 3; i++) {
+          //     const childKey = parentKey + "N" + i;
+          //     const childData = {
+          //       key: childKey,
+          //       text: nodeData[i - 1]?.message.content,
+          //       color: "#1ABC9C",
+          //       figure: "Diamond",
+          //       parent: parentKey,
+          //     };
+
+          //     tempChildList.push(childData);
+          //   }
+          //   setNodeDataArray([...nodeDataArray, ...tempChildList]);
+          //   setNodeData([]);
+          // }
         },
       }
     );
+
+    // Add nodes
+    console.log(parentKey.length > 0 && nodeData.length === 3);
+    if (
+      parentKey.length > 0 &&
+      nodeData.length === 3 &&
+      nodeDataArray.length > 0
+    ) {
+      // const parentKey = node.data?.key;
+      const tempChildList = [];
+      for (let i = 1; i <= 3; i++) {
+        const childKey = parentKey + "N" + i;
+        const childData = {
+          key: childKey,
+          text: nodeData[i - 1]?.message.content,
+          color: "#1ABC9C",
+          figure: "Diamond",
+          parent: parentKey,
+        };
+        tempChildList.push(childData);
+      }
+      setNodeDataArray([...nodeDataArray, ...tempChildList]);
+      setNodeData([]);
+    }
 
     // Add nodes to the diagram
     diagram.model = $(go.TreeModel, {
@@ -84,21 +154,32 @@ const ChatgptMindmap = () => {
     });
 
     // Set the zoom level to 25%
-    diagram.scale = 0.25;
+    diagram.scale = 0.125;
     // Set minimum and maximum sizes for the nodes
     diagram.nodeTemplate.minSize = new go.Size(NaN, 50);
     diagram.nodeTemplate.maxSize = new go.Size(NaN, NaN);
 
+    if (nodeDataArray.length === 0 && rootData) {
+      setNodeDataArray([
+        {
+          key: "R1",
+          text: rootData,
+          color: "brown",
+          figure: "Rectangle",
+        },
+      ]);
+      // setParentKey("R1");
+    }
+
     // store Diagram instance
     diagramInstanceRef.current = diagram;
-  }, [diagramRef.current, nodeDataArray]);
+  }, [diagramRef.current, rootData, nodeData, nodeDataArray, parentKey]);
 
   useEffect(() => {
-    console.log(Object.keys(nodeData).length);
-    if (Object.keys(nodeData).length !== 0) {
-      dataJSONToMindmapConvertor(nodeData);
+    if (nodeSelected && prompt.length > 0 && nodeData.length === 0) {
+      nodefetchData();
     }
-  }, [nodeData]);
+  }, [prompt, nodeSelected, nodeData]);
 
   // cleanup function
   useEffect(() => {
@@ -110,50 +191,10 @@ const ChatgptMindmap = () => {
     };
   }, []);
 
-  const dataJSONToMindmapConvertor = async (myData) => {
+  const nodefetchData = async () => {
     // your async code here
-    try {
-      const jsonString = JSON.stringify(myData);
-      console.log(jsonString);
-      const jsonObject = JSON.parse(jsonString);
-      console.log(jsonObject);
-      console.log("JSON data is valid");
-      const mindmapData = convertToTreeNodes(myData);
-      console.log(mindmapData);
-      setNodeDataArray([...nodeDataArray, ...mindmapData]);
-    } catch (error) {
-      console.error("JSON data is invalid", error);
-    }
-  };
-
-  const promptHandleSubmit = async (event) => {
-    event.preventDefault();
-    if (generatedText) {
-      setGeneratedText("");
-      setNodeData([]);
-      setNodeDataArray([
-        {
-          key: "R1",
-          text: prompt,
-          color: "brown",
-          figure: "Rectangle",
-        },
-      ]);
-    }
-    if (nodeDataArray.length === 0) {
-      setNodeDataArray([
-        {
-          key: "R1",
-          text: prompt,
-          color: "brown",
-          figure: "Rectangle",
-        },
-      ]);
-    }
     const model = {
-      inputText:
-        prompt +
-        "Please provide mindmap. Please provide data in json format only and no other text.",
+      inputText: prompt,
     };
     try {
       setGeneratedText("");
@@ -165,14 +206,41 @@ const ChatgptMindmap = () => {
       );
       setLoader(false);
       toast.success("Text Generation ended!!");
+      setNodeSelected(false);
       setGeneratedText(data);
-      const responseJSON = JSON.parse(
-        data.generatedChatResponse.replace(/\n/g, "")
-      );
-      console.log(responseJSON);
-      setNodeData(responseJSON);
+      setRootData(prompt);
+      setNodeData([...data.generatedChatResponse]);
+      setPrompt("");
     } catch (error) {
       setLoader(false);
+      setNodeSelected(false);
+      console.log(error);
+    }
+  };
+
+  const promptHandleSubmit = async (event) => {
+    event.preventDefault();
+    const model = {
+      inputText: prompt,
+    };
+    try {
+      setGeneratedText("");
+      setLoader(true);
+      toast.success("Text Generation started!!");
+      const { data } = await axios.post(
+        "/api/chatgpt/chatgpt-chatcompletion-mindmap",
+        model
+      );
+      setLoader(false);
+      toast.success("Text Generation ended!!");
+      setNodeSelected(false);
+      setGeneratedText(data);
+      setRootData(prompt);
+      setNodeData([...data.generatedChatResponse]);
+      setPrompt("");
+    } catch (error) {
+      setLoader(false);
+      setNodeSelected(false);
       console.log(error);
     }
   };
@@ -181,8 +249,10 @@ const ChatgptMindmap = () => {
     event.preventDefault();
     setGeneratedText("");
     setPrompt("");
+    setRootData("");
     setNodeData([]);
     setNodeDataArray([]);
+    setParentKey("R1");
   };
 
   return (
@@ -206,10 +276,10 @@ const ChatgptMindmap = () => {
             <h1 className="text-xl md:text-5xl text-center font-bold py-10 border-b">
               OpenAI GPT Demo - Chat Completion
             </h1>
-            <div className="container mx-auto py-3">
+            <div className="container flex mx-auto py-3">
               <div>
                 <div className="flex">
-                  <div className="mx-4">
+                  <div className="mx-2">
                     <form onSubmit={promptHandleSubmit}>
                       <label htmlFor="prompt" className="text-xl font-bold">
                         Enter a prompt:
@@ -218,7 +288,7 @@ const ChatgptMindmap = () => {
                       <textarea
                         className="border px-2 py-2 focus:outline-none rounded-md text-justify"
                         id="prompt"
-                        rows={6}
+                        rows={8}
                         cols={60}
                         value={prompt}
                         onChange={(event) => setPrompt(event.target.value)}
@@ -230,7 +300,7 @@ const ChatgptMindmap = () => {
                         type="submit"
                         className="bg-green-500 border-green-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-green-200 hover:text-green-900 focus:outline-none"
                       >
-                        {generatedText ? "Regenerate Chat" : "Generate Chat"}
+                        Generate Chat
                       </button>
                       <button
                         onClick={clearTextHandler}
@@ -241,32 +311,18 @@ const ChatgptMindmap = () => {
                     </form>
                   </div>
                   <div>
-                    <>
-                      <h2>Rules To Generate Mindmap:</h2>
-                      <ul className="list-disc">
-                        <li>Type in Prompt your requirement.</li>
-                        <li>Wait, So that AI can geneate your data.</li>
-                        <li>
-                          If Your data is not upto mark, please generate again.
-                        </li>
-                        <li>
-                          If Your mindmap is not generated, please generate
-                          again.
-                        </li>
-                        <li>
-                          Please rephrase your words, do not include any
-                          technical IT terms.
-                        </li>
-                      </ul>
-                    </>
+                    {nodeDataArray.length !== 0 && (
+                      <>
+                        <h2>Selected Node Data:</h2>
+                        <p className="text-justify">{prompt}</p>
+                      </>
+                    )}
                   </div>
                 </div>
 
                 <br></br>
                 <br></br>
                 {loader ? <Loader /> : <></>}
-              </div>
-              <div className="">
                 {(generatedText || nodeDataArray.length !== 0 || true) && (
                   <div className="mx-auto">
                     {/* <div
@@ -292,13 +348,13 @@ const ChatgptMindmap = () => {
                       ref={diagramRef}
                       style={{
                         height: "600px",
-                        width: "100%",
                         backgroundColor: "#f0f0f0",
                       }}
                     />
                   </div>
                 )}
               </div>
+              <div></div>
             </div>
           </>
 
@@ -308,43 +364,5 @@ const ChatgptMindmap = () => {
     </>
   );
 };
-
-function convertToTreeNodes(data, parent = "R1") {
-  var nodes = [];
-  var nodeCount = 1;
-  var nodeDataCount = 1;
-  for (let key in data) {
-    let value = data[key];
-    if (typeof value === "string") {
-      let node = {
-        key: parent + "N" + nodeCount + "D" + nodeDataCount,
-        parent: parent,
-        text: value,
-      };
-      nodes.push(node);
-    }
-    if (typeof value === "object") {
-      let node = {
-        key: parent + "N" + nodeCount + "D" + nodeDataCount,
-        parent: parent,
-        text: typeof value === "object" ? key : value,
-      };
-      nodes.push(node);
-      let children = convertToTreeNodes(
-        value,
-        parent + "N" + nodeCount + "D" + nodeDataCount
-      );
-      if (children.length !== 0) {
-        nodes.push(...children);
-      }
-    }
-    // console.log("For Loop - ", nodes)
-    nodeDataCount++;
-  }
-  nodeCount++;
-  //   console.log("Main - nodes", nodes)
-  //   console.log("Main - dataArr", dataArr)
-  return nodes;
-}
 
 export default ChatgptMindmap;
