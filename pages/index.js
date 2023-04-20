@@ -51,7 +51,8 @@ export default function Home() {
                   <p>
                     Given a prompt, the model will return one or more predicted
                     completions, and can also return the probabilities of
-                    alternative tokens at each position.
+                    alternative tokens at each position. It will generate
+                    mindmap only.
                   </p>
                   <button
                     className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800 focus:outline-none"
