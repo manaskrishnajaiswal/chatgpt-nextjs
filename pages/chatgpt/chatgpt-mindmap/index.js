@@ -5,6 +5,21 @@ import Head from "next/head";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+const colors = {
+  red: "#FF0000",
+  green: "#00FF00",
+  blue: "#0000FF",
+  yellow: "#FFFF00",
+  magenta: "#FF00FF",
+  cyan: "#00FFFF",
+  white: "#FFFFFF",
+  gray: "#808080",
+  silver: "#C0C0C0",
+  maroon: "#800000",
+  olive: "#808000",
+  navy: "#000080",
+  purple: "#800080",
+};
 
 const ChatgptMindmap = () => {
   const diagramRef = useRef(null);
@@ -123,6 +138,7 @@ const ChatgptMindmap = () => {
       setNodeDataArray([...nodeDataArray, ...mindmapData]);
     } catch (error) {
       console.error("JSON data is invalid", error);
+      toast.alert("Not able to generate Text, Please try again!");
     }
   };
 
@@ -135,7 +151,12 @@ const ChatgptMindmap = () => {
         {
           key: "R1",
           text: prompt,
-          color: "brown",
+          color:
+            colors[
+              Object.keys(colors)[
+                Math.floor(Math.random() * Object.keys(colors).length)
+              ]
+            ],
           figure: "Rectangle",
         },
       ]);
@@ -145,7 +166,12 @@ const ChatgptMindmap = () => {
         {
           key: "R1",
           text: prompt,
-          color: "brown",
+          color:
+            colors[
+              Object.keys(colors)[
+                Math.floor(Math.random() * Object.keys(colors).length)
+              ]
+            ],
           figure: "Rectangle",
         },
       ]);
@@ -153,7 +179,7 @@ const ChatgptMindmap = () => {
     const model = {
       inputText:
         prompt +
-        "Please provide mindmap. Please provide data in json format only and no other text.",
+        "Please provide mindmap. Please do not include data in Array format strictly and only Objects of Objects format and also include respective data in each object also. Please provide data in json format only and no other text.",
     };
     try {
       setGeneratedText("");
@@ -269,24 +295,6 @@ const ChatgptMindmap = () => {
               <div className="">
                 {(generatedText || nodeDataArray.length !== 0 || true) && (
                   <div className="mx-auto">
-                    {/* <div
-                      className="mx-3"
-                      style={{
-                        width: "50%",
-                        backgroundColor: "#f0f0f0",
-                      }}
-                    >
-                      <h2 className="text-xl font-bold">Generated Chat:</h2>
-                      <p style={{ textAlign: "justify" }} className="px-2">
-                        {generatedText.generatedChatResponse.map((item) => (
-                          <span key={item.index}>
-                            {item.message.content}
-                            <br></br>
-                            <br></br>
-                          </span>
-                        ))}
-                      </p>
-                    </div> */}
                     <div
                       className="border rounded-md"
                       ref={diagramRef}
@@ -320,6 +328,12 @@ function convertToTreeNodes(data, parent = "R1") {
         key: parent + "N" + nodeCount + "D" + nodeDataCount,
         parent: parent,
         text: value,
+        color:
+          colors[
+            Object.keys(colors)[
+              Math.floor(Math.random() * Object.keys(colors).length)
+            ]
+          ],
       };
       nodes.push(node);
     }
@@ -328,6 +342,12 @@ function convertToTreeNodes(data, parent = "R1") {
         key: parent + "N" + nodeCount + "D" + nodeDataCount,
         parent: parent,
         text: typeof value === "object" ? key : value,
+        color:
+          colors[
+            Object.keys(colors)[
+              Math.floor(Math.random() * Object.keys(colors).length)
+            ]
+          ],
       };
       nodes.push(node);
       let children = convertToTreeNodes(
