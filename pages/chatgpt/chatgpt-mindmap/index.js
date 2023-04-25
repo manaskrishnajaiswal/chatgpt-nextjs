@@ -6,19 +6,27 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const colors = {
-  red: "#FF0000",
-  green: "#00FF00",
-  blue: "#0000FF",
-  yellow: "#FFFF00",
-  magenta: "#FF00FF",
-  cyan: "#00FFFF",
-  white: "#FFFFFF",
-  gray: "#808080",
-  silver: "#C0C0C0",
-  maroon: "#800000",
-  olive: "#808000",
-  navy: "#000080",
-  purple: "#800080",
+  beige: "#F5F5DC",
+  ivory: "#FFFFF0",
+  wheat: "#F5DEB3",
+  lightYellow: "#FFFFE0",
+  lavender: "#E6E6FA",
+  mistyRose: "#FFE4E1",
+  lightBlue: "#ADD8E6",
+  lightPink: "#FFB6C1",
+  lemonChiffon: "#FFFACD",
+  paleGoldenrod: "#EEE8AA",
+  cornsilk: "#FFF8DC",
+  mintCream: "#F5FFFA",
+  aliceBlue: "#F0F8FF",
+  floralWhite: "#FFFAF0",
+  honeydew: "#F0FFF0",
+  oldLace: "#FDF5E6",
+  seashell: "#FFF5EE",
+  lightCyan: "#E0FFFF",
+  lavenderBlush: "#FFF0F5",
+  lightGoldenrodYellow: "#FAFAD2",
+  papayaWhip: "#FFEFD5",
 };
 
 const ChatgptMindmap = () => {
@@ -48,30 +56,70 @@ const ChatgptMindmap = () => {
     const diagram = $(go.Diagram, diagramRef.current, {
       initialContentAlignment: go.Spot.Center,
       "undoManager.isEnabled": true,
+      layout: $(go.TreeLayout, {
+        angle: 90,
+        arrangementSpacing: new go.Size(100, 100),
+        compaction: go.TreeLayout.CompactionBlock,
+        alternateAngle: 0,
+        alternateAlignment: go.TreeLayout.AlignmentCenter,
+      }),
     });
 
     // Define the node template with a button
     diagram.nodeTemplate = $(
       go.Node,
       "Auto",
-      { background: "yellow", resizable: true },
-      $(go.Shape, { fill: "yellow" }, new go.Binding("fill", "color")),
+      {
+        background: "white",
+        resizable: true,
+        selectionAdornmentTemplate: $(
+          go.Adornment,
+          "Auto",
+          $(go.Shape, "RoundedRectangle", {
+            fill: null,
+            stroke: "deepskyblue",
+            strokeWidth: 2,
+          }),
+          $(go.Placeholder)
+        ),
+      },
       $(
-        go.TextBlock,
+        go.Panel, // Added a panel to center the content in the node
+        go.Panel.Auto,
         {
-          margin: 10,
-          textAlign: "center",
           stretch: go.GraphObject.Fill,
+          alignment: go.Spot.Center,
+          margin: 10,
           width: 800,
           height: 500,
-          overflow: go.TextBlock.OverflowEllipsis,
-          font: "bold 50px sans-serif",
-          editable: false,
-          isMultiline: true,
-          wrap: go.TextBlock.WrapFit,
         },
-        new go.Binding("text", "text"),
-        new go.Binding("stroke", "stroke")
+        $(
+          go.Shape,
+          "RoundedRectangle",
+          {
+            fill: $(go.Brush, "Linear", {
+              0: "white",
+              1: "#E6F4F1",
+            }),
+            stroke: null,
+            strokeWidth: 0,
+          },
+          new go.Binding("fill", "color")
+        ),
+        $(
+          go.TextBlock,
+          {
+            textAlign: "center",
+            overflow: go.TextBlock.OverflowEllipsis,
+            font: "bold 50px sans-serif",
+            editable: false,
+            isMultiline: true,
+            wrap: go.TextBlock.WrapFit,
+            stroke: "#444",
+          },
+          new go.Binding("text", "text"),
+          new go.Binding("stroke", "stroke")
+        )
       ),
       {
         click: (e, node) => {
@@ -91,12 +139,12 @@ const ChatgptMindmap = () => {
       nodeDataArray: nodeDataArray,
     });
 
-    // customize the layout of the tree
-    diagram.layout = $(go.TreeLayout, {
-      angle: 90,
-      nodeSpacing: 20,
-      layerSpacing: 80,
-    });
+    // // customize the layout of the tree
+    // diagram.layout = $(go.TreeLayout, {
+    //   angle: 90,
+    //   nodeSpacing: 10,
+    //   layerSpacing: 40,
+    // });
 
     // Set the zoom level to 25%
     diagram.scale = 0.25;
@@ -323,7 +371,7 @@ function convertToTreeNodes(data, parent = "R1") {
   var nodeDataCount = 1;
   for (let key in data) {
     let value = data[key];
-    if (typeof value === "string") {
+    if (typeof value === "string" && value.length !== 0) {
       let node = {
         key: parent + "N" + nodeCount + "D" + nodeDataCount,
         parent: parent,
