@@ -356,7 +356,6 @@ const ChatgptMindmap = () => {
       );
       console.log(responseJSON);
       setNodeData(responseJSON);
-      setPrompt("");
     } catch (error) {
       setLoader(false);
       toast.error("Error fetching data, try again!");
@@ -432,6 +431,7 @@ const ChatgptMindmap = () => {
     setPrompt("");
     setNodeData([]);
     setNodeDataArray([]);
+    setSelectedNodeKey("");
   };
 
   return (
