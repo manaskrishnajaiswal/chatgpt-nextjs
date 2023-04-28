@@ -37,6 +37,8 @@ const ChatgptMindmap = () => {
   console.log(nodeData);
   const [nodeDataArray, setNodeDataArray] = useState([]);
   console.log(nodeDataArray);
+  const [selectedNodeKey, setSelectedNodeKey] = useState("");
+  console.log(selectedNodeKey);
 
   const [prompt, setPrompt] = useState("");
   console.log(prompt);
@@ -159,7 +161,24 @@ const ChatgptMindmap = () => {
           )
         ),
         {
-          click: (e, obj) => e.diagram.commandHandler.deleteSelection(),
+          click: async (e, obj) => {
+            var contextmenu = obj.part; // get the context menu
+            var node = contextmenu.adornedPart; // get the adorned Part, i.e. the node
+            if (node) {
+              var key = node.data.key; // get the node key
+              console.log(
+                "Generate Child Nodes clicked on node with key:",
+                key
+              );
+              setSelectedNodeKey(key);
+              const newNodePrompt = await fetchPrompt(key);
+              console.log(newNodePrompt);
+              // generate child nodes here
+              await nodefetchData(newNodePrompt);
+            } else {
+              console.log("No node found");
+            }
+          },
         }
       )
     );
@@ -252,9 +271,10 @@ const ChatgptMindmap = () => {
   useEffect(() => {
     console.log(Object.keys(nodeData).length);
     if (Object.keys(nodeData).length !== 0) {
-      dataJSONToMindmapConvertor(nodeData);
+      dataJSONToMindmapConvertor(nodeData, selectedNodeKey);
+      setNodeData({});
     }
-  }, [nodeData]);
+  }, [nodeData, selectedNodeKey]);
 
   // cleanup function
   useEffect(() => {
@@ -266,7 +286,7 @@ const ChatgptMindmap = () => {
     };
   }, []);
 
-  const dataJSONToMindmapConvertor = async (myData) => {
+  const dataJSONToMindmapConvertor = async (myData, mySelectedNodeKey) => {
     // your async code here
     try {
       const jsonString = JSON.stringify(myData);
@@ -274,12 +294,73 @@ const ChatgptMindmap = () => {
       const jsonObject = JSON.parse(jsonString);
       console.log(jsonObject);
       console.log("JSON data is valid");
-      const mindmapData = convertToTreeNodes(myData);
-      console.log(mindmapData);
-      setNodeDataArray([...nodeDataArray, ...mindmapData]);
+      if (mySelectedNodeKey.length > 0) {
+        const mindmapData = convertToTreeNodes(myData, mySelectedNodeKey);
+        console.log(mindmapData);
+        setNodeDataArray([...nodeDataArray, ...mindmapData]);
+      } else {
+        const mindmapData = convertToTreeNodes(myData);
+        console.log(mindmapData);
+        setNodeDataArray([...nodeDataArray, ...mindmapData]);
+      }
     } catch (error) {
       console.error("JSON data is invalid", error);
       toast.alert("Not able to generate Text, Please try again!");
+    }
+  };
+
+  const fetchPrompt = async (nodeKeyId) => {
+    function fetchPromptData(data, nodeKey) {
+      var nodesText = "";
+      var parentKey = "";
+      for (let i = 0; i < data.length; i++) {
+        if (data[i]["key"] === nodeKey) {
+          nodesText = data[i]["text"] + ". " + nodesText;
+          parentKey = data[i]["parent"];
+          let parentNodesText = fetchPromptData(data, parentKey);
+          if (parentNodesText.length !== 0) {
+            nodesText = parentNodesText + nodesText;
+          }
+        }
+      }
+      return nodesText;
+    }
+
+    const traversedPrompt = fetchPromptData(nodeDataArray, nodeKeyId);
+    console.log(traversedPrompt);
+    return traversedPrompt;
+  };
+
+  const nodefetchData = async (customPrompt) => {
+    // your async code here
+    const model = {
+      inputText:
+        customPrompt +
+        " Please provide mindmap. Please do not include data in Array format strictly and only Objects of Objects format and also include respective data in each object also. Please provide data in json format only and no other text. Generate only 150 words data.",
+    };
+    console.log(model);
+    try {
+      setGeneratedText("");
+      setLoader(true);
+      toast.success("Text Generation started!!");
+      const { data } = await axios.post(
+        "/api/chatgpt/chatgpt-chatcompletion-mindmap",
+        model
+      );
+      setLoader(false);
+      toast.success("Text Generation ended!!");
+      setGeneratedText(data);
+      console.log(data);
+      const responseJSON = JSON.parse(
+        data.generatedChatResponse.replace(/\n/g, "")
+      );
+      console.log(responseJSON);
+      setNodeData(responseJSON);
+      setPrompt("");
+    } catch (error) {
+      setLoader(false);
+      toast.error("Error fetching data, try again!");
+      console.log(error);
     }
   };
 
@@ -320,7 +401,7 @@ const ChatgptMindmap = () => {
     const model = {
       inputText:
         prompt +
-        "Please provide mindmap. Please do not include data in Array format strictly and only Objects of Objects format and also include respective data in each object also. Please provide data in json format only and no other text.",
+        "Please provide mindmap. Please do not include data in Array format strictly and only Objects of Objects format and also include respective data in each object also. Please provide data in json format only and no other text. Generate only 150 words data.",
     };
     try {
       setGeneratedText("");
@@ -340,6 +421,7 @@ const ChatgptMindmap = () => {
       setNodeData(responseJSON);
     } catch (error) {
       setLoader(false);
+      toast.error("Error fetching data, try again!");
       console.log(error);
     }
   };
