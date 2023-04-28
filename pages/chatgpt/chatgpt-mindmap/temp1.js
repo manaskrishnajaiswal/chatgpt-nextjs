@@ -95,24 +95,6 @@ const ChatgptMindmap = () => {
             setNodeSelected(true);
             setParentKey(node.data?.key);
           }
-          // else {
-          //   const parentKey = node.data?.key;
-          //   const tempChildList = [];
-          //   for (let i = 1; i <= 3; i++) {
-          //     const childKey = parentKey + "N" + i;
-          //     const childData = {
-          //       key: childKey,
-          //       text: nodeData[i - 1]?.message.content,
-          //       color: "#1ABC9C",
-          //       figure: "Diamond",
-          //       parent: parentKey,
-          //     };
-
-          //     tempChildList.push(childData);
-          //   }
-          //   setNodeDataArray([...nodeDataArray, ...tempChildList]);
-          //   setNodeData([]);
-          // }
         },
       }
     );
@@ -325,24 +307,6 @@ const ChatgptMindmap = () => {
                 {loader ? <Loader /> : <></>}
                 {(generatedText || nodeDataArray.length !== 0 || true) && (
                   <div className="mx-auto">
-                    {/* <div
-                      className="mx-3"
-                      style={{
-                        width: "50%",
-                        backgroundColor: "#f0f0f0",
-                      }}
-                    >
-                      <h2 className="text-xl font-bold">Generated Chat:</h2>
-                      <p style={{ textAlign: "justify" }} className="px-2">
-                        {generatedText.generatedChatResponse.map((item) => (
-                          <span key={item.index}>
-                            {item.message.content}
-                            <br></br>
-                            <br></br>
-                          </span>
-                        ))}
-                      </p>
-                    </div> */}
                     <div
                       className="border rounded-md"
                       ref={diagramRef}

@@ -63,7 +63,106 @@ const ChatgptMindmap = () => {
         alternateAngle: 0,
         alternateAlignment: go.TreeLayout.AlignmentCenter,
       }),
+      // when the user drags a node, also move/copy/delete the whole subtree starting with that node
+      "commandHandler.copiesTree": true,
+      "commandHandler.copiesParentKey": true,
+      "commandHandler.deletesTree": true,
+      "draggingTool.dragsTree": true,
+      "undoManager.isEnabled": true,
     });
+
+    diagram.contextMenu = $(go.Adornment);
+    // the context menu allows users to change the font size and weight,
+    // and to perform a limited tree layout starting at that node
+    var nodeMenu = $(
+      "ContextMenu",
+      $(
+        "ContextMenuButton",
+        $(
+          go.Panel, // Added a panel to center the content in the node
+          go.Panel.Auto,
+          {
+            stretch: go.GraphObject.Fill,
+            alignment: go.Spot.Center,
+            margin: 1,
+            width: 50,
+            height: 30,
+          },
+          $(
+            go.Shape,
+            "RoundedRectangle",
+            {
+              fill: $(go.Brush, "Linear", {
+                0: "white",
+                1: "#E6F4F1",
+              }),
+              stroke: null,
+              strokeWidth: 0,
+            },
+            new go.Binding("fill", "color")
+          ),
+          $(
+            go.TextBlock,
+            {
+              textAlign: "center",
+              overflow: go.TextBlock.OverflowEllipsis,
+              font: "bold 10px sans-serif",
+              editable: false,
+              isMultiline: true,
+              wrap: go.TextBlock.WrapFit,
+              stroke: "#444",
+            },
+            "Delete"
+          )
+        ),
+        {
+          click: (e, obj) => e.diagram.commandHandler.deleteSelection(),
+        }
+      ),
+      $(
+        "ContextMenuButton",
+        $(
+          go.Panel, // Added a panel to center the content in the node
+          go.Panel.Auto,
+          {
+            stretch: go.GraphObject.Fill,
+            alignment: go.Spot.Center,
+            margin: 1,
+            width: 100,
+            height: 30,
+          },
+          $(
+            go.Shape,
+            "RoundedRectangle",
+            {
+              fill: $(go.Brush, "Linear", {
+                0: "white",
+                1: "#E6F4F1",
+              }),
+              stroke: null,
+              strokeWidth: 0,
+            },
+            new go.Binding("fill", "color")
+          ),
+          $(
+            go.TextBlock,
+            {
+              textAlign: "center",
+              overflow: go.TextBlock.OverflowEllipsis,
+              font: "bold 10px sans-serif",
+              editable: false,
+              isMultiline: true,
+              wrap: go.TextBlock.WrapFit,
+              stroke: "#444",
+            },
+            "Generate Child Nodes"
+          )
+        ),
+        {
+          click: (e, obj) => e.diagram.commandHandler.deleteSelection(),
+        }
+      )
+    );
 
     // Define the node template with a button
     diagram.nodeTemplate = $(
@@ -82,6 +181,7 @@ const ChatgptMindmap = () => {
           }),
           $(go.Placeholder)
         ),
+        contextMenu: nodeMenu,
       },
       $(
         go.Panel, // Added a panel to center the content in the node
@@ -138,13 +238,6 @@ const ChatgptMindmap = () => {
     diagram.model = $(go.TreeModel, {
       nodeDataArray: nodeDataArray,
     });
-
-    // // customize the layout of the tree
-    // diagram.layout = $(go.TreeLayout, {
-    //   angle: 90,
-    //   nodeSpacing: 10,
-    //   layerSpacing: 40,
-    // });
 
     // Set the zoom level to 25%
     diagram.scale = 0.25;
