@@ -434,6 +434,20 @@ const ChatgptMindmap = () => {
     setSelectedNodeKey("");
   };
 
+  // Toggle full screen on button click
+  const toggleFullScreen = () => {
+    const elem = diagramRef.current;
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.webkitRequestFullscreen) {
+      /* Safari */
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+      /* IE11 */
+      elem.msRequestFullscreen();
+    }
+  };
+
   return (
     <>
       <section>
@@ -518,6 +532,14 @@ const ChatgptMindmap = () => {
               <div className="">
                 {(generatedText || nodeDataArray.length !== 0 || true) && (
                   <div className="mx-auto">
+                    <button
+                      className="bg-green-500 border-green-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-green-200 hover:text-green-900 focus:outline-none"
+                      onClick={toggleFullScreen}
+                    >
+                      Full Screen
+                    </button>
+                    <br></br>
+                    <br></br>
                     <div
                       className="border rounded-md"
                       ref={diagramRef}
