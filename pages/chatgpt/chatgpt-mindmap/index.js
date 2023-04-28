@@ -306,6 +306,7 @@ const ChatgptMindmap = () => {
     } catch (error) {
       console.error("JSON data is invalid", error);
       toast.alert("Not able to generate Text, Please try again!");
+      alert("Error fetching data, try again!");
     }
   };
 
@@ -359,6 +360,7 @@ const ChatgptMindmap = () => {
     } catch (error) {
       setLoader(false);
       toast.error("Error fetching data, try again!");
+      alert("Error fetching data, try again!");
       console.log(error);
     }
   };
@@ -421,6 +423,7 @@ const ChatgptMindmap = () => {
     } catch (error) {
       setLoader(false);
       toast.error("Error fetching data, try again!");
+      alert("Error fetching data, try again!");
       console.log(error);
     }
   };
