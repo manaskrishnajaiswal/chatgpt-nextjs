@@ -337,7 +337,7 @@ const ChatgptMindmap = () => {
     const model = {
       inputText:
         customPrompt +
-        " Please provide mindmap. Please do not include data in Array format strictly and only Objects of Objects format and also include respective data in each object also. Please provide data in json format only and no other text. Generate only 150 words data.",
+        ` Please provide mindmap. Please do not include data in Array format strictly and only Objects of Objects format and also include respective data in each object also. Please provide data in json format only and no other text. Strictly generate only 2 nodes in mindmap.`,
     };
     console.log(model);
     try {
@@ -571,10 +571,24 @@ function convertToTreeNodes(data, parent = "R1") {
   var nodeDataCount = 1;
   for (let key in data) {
     let value = data[key];
-    if (typeof value === "string" && value.length !== 0) {
+    if (
+      (typeof value === "string" && value.length !== 0) ||
+      typeof value === "number"
+    ) {
       let node = {
         key: parent + "N" + nodeCount + "D" + nodeDataCount,
         parent: parent,
+        text: key,
+        color:
+          colors[
+            Object.keys(colors)[
+              Math.floor(Math.random() * Object.keys(colors).length)
+            ]
+          ],
+      };
+      let childNode = {
+        key: parent + "N" + nodeCount + "D" + nodeDataCount + "CS",
+        parent: parent + "N" + nodeCount + "D" + nodeDataCount,
         text: value,
         color:
           colors[
@@ -584,6 +598,7 @@ function convertToTreeNodes(data, parent = "R1") {
           ],
       };
       nodes.push(node);
+      nodes.push(childNode);
     }
     if (typeof value === "object") {
       let node = {
