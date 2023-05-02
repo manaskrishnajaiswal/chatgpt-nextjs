@@ -337,7 +337,7 @@ const ChatgptMindmap = () => {
     const model = {
       inputText:
         customPrompt +
-        ` Please provide mindmap. Please do not include data in Array format strictly and only Objects of Objects format and also include respective data in each object also. Please provide data in json format only and no other text. Strictly generate only 2 nodes in mindmap.`,
+        ` Please provide mindmap. Please do not include data in Array format strictly and only Objects of Objects format and also include respective data in each object also. Please provide data in json format only and no other text. Strictly generate only 2 nodes in mindmap which contain inital prompt description.`,
     };
     console.log(model);
     try {
