@@ -165,6 +165,7 @@ const ChatgptMindmap = () => {
             var contextmenu = obj.part; // get the context menu
             var node = contextmenu.adornedPart; // get the adorned Part, i.e. the node
             if (node) {
+              console.log(node.data.text);
               var key = node.data.key; // get the node key
               console.log(
                 "Generate Child Nodes clicked on node with key:",
@@ -174,7 +175,7 @@ const ChatgptMindmap = () => {
               const newNodePrompt = await fetchPrompt(key);
               console.log(newNodePrompt);
               // generate child nodes here
-              await nodefetchData(newNodePrompt);
+              await nodefetchData(node.data.text);
             } else {
               console.log("No node found");
             }
@@ -335,11 +336,9 @@ const ChatgptMindmap = () => {
   const nodefetchData = async (customPrompt) => {
     // your async code here
     const model = {
-      inputText:
-        customPrompt +
-        ` Please provide mindmap. Please do not include data in Array format strictly and only Objects of Objects format and also include respective data in each object also. Please provide data in json format only and no other text. Strictly generate only 2 nodes in mindmap which contain inital prompt description.`,
+      inputText: ` Please refer text in inverted commas """${customPrompt}""" and Please provide mindmap. Please do not include data in Array format strictly and only Objects of Objects format and also include respective data in each object also. Please provide data in json format only and no other text. Response should always between {} parenthesis.`,
     };
-    console.log(model);
+    console.log(model["inputText"]);
     try {
       setGeneratedText("");
       setLoader(true);
@@ -402,7 +401,7 @@ const ChatgptMindmap = () => {
     const model = {
       inputText:
         prompt +
-        "Please provide mindmap. Please do not include data in Array format strictly and only Objects of Objects format and also include respective data in each object also. Please provide data in json format only and no other text. Generate only 150 words data.",
+        "Please provide mindmap. Please do not include data in Array format strictly and only Objects of Objects format and also include respective data in each object also. Please provide data in json format only and no other text.",
     };
     try {
       setGeneratedText("");
