@@ -603,7 +603,12 @@ function convertToTreeNodes(data, parent = "R1") {
       let node = {
         key: parent + "N" + nodeCount + "D" + nodeDataCount,
         parent: parent,
-        text: typeof value === "object" ? key : value,
+        text:
+          typeof value === "object"
+            ? Number.isNaN(Number(key))
+              ? key
+              : "Item_" + (Number(key) + 1)
+            : value,
         color:
           colors[
             Object.keys(colors)[
