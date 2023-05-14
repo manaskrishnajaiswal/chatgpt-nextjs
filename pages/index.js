@@ -135,7 +135,7 @@ export default function Home() {
                           className="bg-yellow-500 border-yellow-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-yellow-200 hover:border-yellow-200 hover:text-gray-800 focus:outline-none"
                           onClick={createImageHandler}
                         >
-                          Try Create Image - Comming Soon
+                          Try Create Image
                         </button>
                       </div>
                     </li>

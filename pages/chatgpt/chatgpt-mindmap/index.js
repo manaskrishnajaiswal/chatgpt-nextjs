@@ -43,6 +43,7 @@ const ChatgptMindmap = () => {
   const [prompt, setPrompt] = useState("");
   console.log(prompt);
   const [generatedText, setGeneratedText] = useState("");
+  const [generatedImage, setGeneratedImage] = useState([]);
   const [loader, setLoader] = useState(false);
 
   useEffect(() => {
@@ -181,6 +182,82 @@ const ChatgptMindmap = () => {
             }
           },
         }
+      ),
+      $(
+        "ContextMenuButton",
+        $(
+          go.Panel, // Added a panel to center the content in the node
+          go.Panel.Auto,
+          {
+            stretch: go.GraphObject.Fill,
+            alignment: go.Spot.Center,
+            margin: 1,
+            width: 100,
+            height: 30,
+          },
+          $(
+            go.Shape,
+            "RoundedRectangle",
+            {
+              fill: $(go.Brush, "Linear", {
+                0: "white",
+                1: "#E6F4F1",
+              }),
+              stroke: null,
+              strokeWidth: 0,
+            },
+            new go.Binding("fill", "color")
+          ),
+          $(
+            go.TextBlock,
+            {
+              textAlign: "center",
+              overflow: go.TextBlock.OverflowEllipsis,
+              font: "bold 10px sans-serif",
+              editable: false,
+              isMultiline: true,
+              wrap: go.TextBlock.WrapFit,
+              stroke: "#444",
+            },
+            "Generate Image"
+          )
+        ),
+        {
+          click: async (e, obj) => {
+            var contextmenu = obj.part; // get the context menu
+            var node = contextmenu.adornedPart; // get the adorned Part, i.e. the node
+            if (node) {
+              console.log(node.data.text);
+              var key = node.data.key; // get the node key
+              console.log(
+                "Generate Image Child Node clicked on node with key:",
+                key
+              );
+              // setSelectedNodeKey(key);
+              // const newNodePrompt = await fetchPrompt(key);
+              // console.log(newNodePrompt);
+              // generate child nodes here
+              const genImages = await handleImageGenerate(node.data.text);
+              console.log(genImages);
+              let randomNumber = Math.floor(Math.random() * 5);
+              const imgNode = {
+                key: "I" + randomNumber,
+                parent: key,
+                source: genImages.generatedImageResponse[randomNumber]["url"],
+                color:
+                  colors[
+                    Object.keys(colors)[
+                      Math.floor(Math.random() * Object.keys(colors).length)
+                    ]
+                  ],
+                figure: "Rectangle",
+              };
+              setNodeDataArray([...nodeDataArray, imgNode]);
+            } else {
+              console.log("No node found");
+            }
+          },
+        }
       )
     );
 
@@ -225,6 +302,16 @@ const ChatgptMindmap = () => {
             strokeWidth: 0,
           },
           new go.Binding("fill", "color")
+        ),
+        $(
+          go.Picture, // added a Picture object to display an image
+          {
+            margin: 10,
+            width: 700,
+            height: 400,
+            background: "white",
+          },
+          new go.Binding("source", "source") // bound to the "source" property of the node data
         ),
         $(
           go.TextBlock,
@@ -427,6 +514,31 @@ const ChatgptMindmap = () => {
     }
   };
 
+  const handleImageGenerate = async (imagePrompt) => {
+    const model = {
+      inputText: imagePrompt,
+    };
+    console.log(model);
+    try {
+      setGeneratedImage("");
+      setLoader(true);
+      toast.success("Image Generation started!!");
+      const { data } = await axios.post(
+        "/api/chatgpt/chatgpt-createimage",
+        model
+      );
+      setLoader(false);
+      toast.success("Image Generation ended!!");
+      setGeneratedImage(data);
+      return data;
+    } catch (error) {
+      setLoader(false);
+      toast.error("Error fetching data, try again!");
+      alert("Error fetching data, try again!");
+      console.log(error);
+    }
+  };
+
   const clearTextHandler = (event) => {
     event.preventDefault();
     setGeneratedText("");
@@ -434,6 +546,7 @@ const ChatgptMindmap = () => {
     setNodeData([]);
     setNodeDataArray([]);
     setSelectedNodeKey("");
+    setGeneratedImage([]);
   };
 
   // Toggle full screen on button click
@@ -495,13 +608,15 @@ const ChatgptMindmap = () => {
                         type="submit"
                         className="bg-green-500 border-green-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-green-200 hover:text-green-900 focus:outline-none"
                       >
-                        {generatedText ? "Regenerate Chat" : "Generate Chat"}
+                        {generatedText
+                          ? "Regenerate MindMap"
+                          : "Generate MindMap"}
                       </button>
                       <button
                         onClick={clearTextHandler}
                         className="mx-2 bg-red-500 border-red-500 text-yellow-50 px-4 py-2 border rounded-md hover:bg-red-200 hover:text-red-900 focus:outline-none"
                       >
-                        Clear Chat
+                        Clear MindMap
                       </button>
                     </form>
                   </div>
@@ -577,7 +692,7 @@ function convertToTreeNodes(data, parent = "R1") {
       let node = {
         key: parent + "N" + nodeCount + "D" + nodeDataCount,
         parent: parent,
-        text: key,
+        text: Number.isNaN(Number(key)) ? key : "Item_" + (Number(key) + 1),
         color:
           colors[
             Object.keys(colors)[
