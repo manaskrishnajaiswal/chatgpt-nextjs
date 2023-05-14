@@ -582,7 +582,7 @@ const ChatgptMindmap = () => {
         <main className="py-5">
           <>
             <h1 className="text-xl md:text-5xl text-center font-bold py-10 border-b">
-              OpenAI GPT Demo - Chat Completion
+              OpenAI GPT Demo - Generate MindMap
             </h1>
             <div className="container mx-auto py-3">
               <div>
